@@ -8,10 +8,15 @@ export async function POST(request) {
   try {
     const result = await request.json();
 
-    // Get credentials from environment variable
+    if (!process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
+      return NextResponse.json(
+        { error: 'Google credentials not configured' },
+        { status: 500 }
+      );
+    }
+
     const serviceAccountKey = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
 
-    // Create JWT client
     const jwtClient = new google.auth.JWT(
       serviceAccountKey.client_email,
       null,
@@ -19,13 +24,10 @@ export async function POST(request) {
       ['https://www.googleapis.com/auth/spreadsheets']
     );
 
-    // Authorize
     await jwtClient.authorize();
 
-    // Create Sheets API client
     const sheets = google.sheets({ version: 'v4', auth: jwtClient });
 
-    // Prepare row data
     const values = [
       [
         new Date().toLocaleDateString(),
@@ -33,12 +35,11 @@ export async function POST(request) {
         result.position || '',
         result.company || '',
         result.location || '',
-        result.icpStatus,
+        result.icpStatus || '',
         result.linkedinUrl || ''
       ]
     ];
 
-    // Append to sheet
     await sheets.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
       range: `${SHEET_NAME}!A:G`,
@@ -46,14 +47,11 @@ export async function POST(request) {
       resource: { values }
     });
 
-    return NextResponse.json({
-      success: true,
-      message: 'Saved to Google Sheets'
-    });
+    return NextResponse.json({ success: true, message: 'Saved to Google Sheets' });
   } catch (error) {
     console.error('Save error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to save' },
+      { error: error.message || 'Failed to save to Google Sheets' },
       { status: 500 }
     );
   }
