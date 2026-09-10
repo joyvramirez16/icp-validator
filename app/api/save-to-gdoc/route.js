@@ -1,3 +1,4 @@
+import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
 
 const SHEET_ID = '1faL1m-vp-DGQcU3iVhya4YSok71ckozRslbkdI9Quxs';
@@ -45,13 +46,13 @@ export async function POST(request) {
       resource: { values }
     });
 
-    return Response.json({
+    return NextResponse.json({
       success: true,
       message: 'Saved to Google Sheets'
     });
   } catch (error) {
     console.error('Save error:', error);
-    return Response.json(
+    return NextResponse.json(
       { error: error.message || 'Failed to save' },
       { status: 500 }
     );
