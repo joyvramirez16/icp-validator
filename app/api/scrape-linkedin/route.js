@@ -1,41 +1,44 @@
+import { NextResponse } from 'next/server';
+
 export async function POST(request) {
   try {
     const { url } = await request.json();
 
     if (!url || !url.includes('linkedin.com')) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid LinkedIn URL' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return NextResponse.json({ error: 'Invalid LinkedIn URL' }, { status: 400 });
     }
 
     const linkedinUrl = url.startsWith('http') ? url : `https://${url}`;
 
-    const response = await fetch(linkedinUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      },
-    });
+    try {
+      const response = await fetch(linkedinUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+      });
 
-    if (!response.ok) {
-      return new Response(
-        JSON.stringify({ error: 'Could not fetch LinkedIn profile.' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      if (!response.ok) {
+        return NextResponse.json(
+          { error: 'Could not fetch LinkedIn profile.' },
+          { status: 500 }
+        );
+      }
+
+      const html = await response.text();
+      const profileData = extractProfileData(html, linkedinUrl);
+
+      return NextResponse.json(profileData);
+    } catch (fetchError) {
+      return NextResponse.json(
+        { error: 'Failed to fetch LinkedIn profile. Profile may be private.' },
+        { status: 500 }
       );
     }
-
-    const html = await response.text();
-    const profileData = extractProfileData(html, linkedinUrl);
-
-    return new Response(JSON.stringify(profileData), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
   } catch (error) {
     console.error('Scrape error:', error);
-    return new Response(
-      JSON.stringify({ error: error.message || 'Failed to scrape profile.' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    return NextResponse.json(
+      { error: error.message || 'Failed to scrape profile.' },
+      { status: 500 }
     );
   }
 }
@@ -43,17 +46,17 @@ export async function POST(request) {
 function extractProfileData(html, url) {
   const profileData = {
     linkedinUrl: url,
-    name: '',
-    position: '',
-    company: '',
-    location: '',
+    name: 'LinkedIn User',
+    position: 'Position Unknown',
+    company: 'Company Unknown',
+    location: 'Location Unknown',
     companySize: null,
   };
 
   try {
     const titleMatch = html.match(/<title>([^|]*)/i);
     if (titleMatch) {
-      profileData.name = titleMatch[1].trim();
+      profileData.name = titleMatch[1].trim() || 'LinkedIn User';
     }
 
     const headlineMatch = html.match(/<meta\s+property="og:description"\s+content="([^"]*)/i);
@@ -65,7 +68,9 @@ function extractProfileData(html, url) {
         profileData.position = atMatch[1].trim();
         profileData.company = atMatch[2].trim();
       }
-      profileData.location = parts[2] || '';
+      if (parts[2]) {
+        profileData.location = parts[2];
+      }
     }
 
     const sizeMatch = html.match(/(\d+),(\d+)\+?\s+employees?/i);
