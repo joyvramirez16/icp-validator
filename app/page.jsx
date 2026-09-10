@@ -93,7 +93,7 @@ export default function Home() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
-      alert(`✓ Saved to Google Doc!\n\nDoc: ${data.docName}`);
+      alert(`✓ Saved to Google Sheets!`);
     } catch (err) {
       alert(`Error saving: ${err.message}`);
     } finally {
@@ -113,11 +113,29 @@ export default function Home() {
           <form onSubmit={handleScrapeProfile} className="space-y-4">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">LinkedIn Profile URL</label>
-              <input type="url" placeholder="https://linkedin.com/in/john-doe" value={linkedinUrl} onChange={(e) => setLinkedinUrl(e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition text-base" required />
+              <input
+                type="url"
+                placeholder="https://linkedin.com/in/john-doe"
+                value={linkedinUrl}
+                onChange={(e) => setLinkedinUrl(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition text-base"
+                required
+              />
               <p className="text-xs text-gray-500 mt-2">Paste any LinkedIn profile URL</p>
             </div>
-            <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 text-base">
-              {loading ? (<><Loader2 className="w-5 h-5 animate-spin" />Analyzing Profile...</>) : ('🔍 Analyze Profile')}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2 text-base"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Analyzing Profile...
+                </>
+              ) : (
+                '🔍 Analyze Profile'
+              )}
             </button>
           </form>
           {error && (
@@ -143,32 +161,4 @@ export default function Home() {
             </div>
 
             <div>
-              <h3 className="font-bold text-lg text-gray-900 mb-4">SOP Criteria Check</h3>
-              <div className="space-y-3">
-                {Object.entries(result.checks).map(([key, check]) => (
-                  <div key={key} className={`flex items-start gap-4 p-4 rounded-lg border-l-4 ${check.passed ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'}`}>
-                    {check.passed ? (<CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />) : (<XCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />)}
-                    <div className="flex-1"><p className="font-semibold text-gray-900">{check.criterion}</p><p className="text-sm text-gray-700">{check.value}</p></div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 text-center">
-              <p className="text-sm text-gray-600 mb-1">Criteria Met</p>
-              <p className="text-3xl font-bold text-blue-600">{result.passedChecks}<span className="text-xl text-gray-600">/{result.totalChecks}</span></p>
-            </div>
-
-            <button onClick={handleSaveToGDoc} disabled={saving} className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2">
-              {saving ? (<><Loader2 className="w-5 h-5 animate-spin" />Saving to Google Docs...</>) : ('💾 Save to Google Docs')}
-            </button>
-          </div>
-        )}
-      </div>
-
-      <div className="max-w-2xl mx-auto mt-8 text-center text-white/80 text-sm">
-        <p>Secure • No data stored • Evaluates against VLL SOP criteria</p>
-      </div>
-    </div>
-  );
-}
+              <h3 className="font-bold text-lg text-gray-900
