@@ -1,13 +1,11 @@
-import { NextResponse } from 'next/server';
-
 export async function POST(request) {
   try {
     const { url } = await request.json();
 
     if (!url || !url.includes('linkedin.com')) {
-      return NextResponse.json(
-        { error: 'Invalid LinkedIn URL' },
-        { status: 400 }
+      return new Response(
+        JSON.stringify({ error: 'Invalid LinkedIn URL' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
@@ -20,18 +18,24 @@ export async function POST(request) {
     });
 
     if (!response.ok) {
-      throw new Error('Could not fetch LinkedIn profile.');
+      return new Response(
+        JSON.stringify({ error: 'Could not fetch LinkedIn profile.' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
     const html = await response.text();
     const profileData = extractProfileData(html, linkedinUrl);
 
-    return NextResponse.json(profileData, { status: 200 });
+    return new Response(JSON.stringify(profileData), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (error) {
     console.error('Scrape error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to scrape profile.' },
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ error: error.message || 'Failed to scrape profile.' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
 }
