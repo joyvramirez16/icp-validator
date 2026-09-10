@@ -8,6 +8,19 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid LinkedIn URL' }, { status: 400 });
     }
 
+    // Mock test data for demo
+    if (url.includes('test') || url.includes('demo')) {
+      return NextResponse.json({
+        linkedinUrl: url,
+        name: 'Jane Smith',
+        position: 'VP of Learning & Development',
+        company: 'Acme Corporation',
+        location: 'USA',
+        companySize: 450
+      });
+    }
+
+    // Try to fetch real profile
     const linkedinUrl = url.startsWith('http') ? url : `https://${url}`;
 
     try {
@@ -19,18 +32,17 @@ export async function POST(request) {
 
       if (!response.ok) {
         return NextResponse.json(
-          { error: 'Could not fetch LinkedIn profile.' },
+          { error: 'LinkedIn profiles are protected. Try: https://linkedin.com/in/test-demo' },
           { status: 500 }
         );
       }
 
       const html = await response.text();
       const profileData = extractProfileData(html, linkedinUrl);
-
       return NextResponse.json(profileData);
     } catch (fetchError) {
       return NextResponse.json(
-        { error: 'Failed to fetch LinkedIn profile. Profile may be private.' },
+        { error: 'LinkedIn profiles are protected. Try using "test" or "demo" in the URL for a demo.' },
         { status: 500 }
       );
     }
