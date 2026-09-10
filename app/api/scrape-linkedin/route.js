@@ -20,7 +20,7 @@ export async function POST(request) {
     });
 
     if (!response.ok) {
-      throw new Error('Could not fetch LinkedIn profile. The profile may be private.');
+      throw new Error('Could not fetch LinkedIn profile.');
     }
 
     const html = await response.text();
