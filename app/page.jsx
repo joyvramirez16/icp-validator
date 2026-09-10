@@ -64,12 +64,12 @@ export default function Home() {
         value: profileData.position || 'Unknown'
       },
       companySize: {
-        passed: profileData.companySize && profileData.companySize >= 150 && profileData.companySize <= 1000,
-        criterion: 'Company headcount: 150-1,000',
+        passed: profileData.companySize != null && profileData.companySize >= 2,
+        criterion: 'Company headcount: 2+',
         value: profileData.companySize ? `${profileData.companySize} employees` : 'Unknown'
       },
       companyMaturity: {
-        passed: profileData.companySize ? profileData.companySize >= 150 : false,
+        passed: profileData.companySize != null && profileData.companySize >= 2,
         criterion: 'Established/mature organization',
         value: profileData.company || 'Unknown'
       }
