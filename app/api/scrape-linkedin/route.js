@@ -26,7 +26,7 @@ export async function POST(request) {
     const html = await response.text();
     const profileData = extractProfileData(html, linkedinUrl);
 
-    return NextResponse.json(profileData);
+    return NextResponse.json(profileData, { status: 200 });
   } catch (error) {
     console.error('Scrape error:', error);
     return NextResponse.json(
